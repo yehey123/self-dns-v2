@@ -1,0 +1,49 @@
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
+      - "443:443/tcp"
+    environment:
+      TZ: ${TIMEZONE}
+      FTLCONF_webserver_api_password: ${DNS_PASSWORD}
+      FTLCONF_webserver_port: ${WEBSERVER_PORT}
+      # Primary: Local Cloudflared Tunnel | Secondary: Quad9 Direct
+      FTLCONF_dns_upstreams: ${UPSTREAM_DNS} 
+      FTLCONF_dns_listeningMode: 'all'
+      PIHOLE_DNS: ${PIHOLE_DNS}
+    volumes:
+      - './etc-pihole:/etc/pihole:Z'
+    cap_add:
+      - SYS_TIME
+      - SYS_NICE
+    restart: unless-stopped
+    # Use host network to make loopback (#5053) communication easy
+    # network_mode: "host" # comment out if deploying on a mac 
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+      - 9.9.9.9
+
+  cloudflared:
+    container_name: cloudflared
+    image: visibilityspots/cloudflared:latest
+    restart: always
+    network_mode: "host"
+    environment:
+      PORT: 5053 
+      # Fallback to Quad9's DoH if Cloudflare fails
+      UPSTREAM: "https://1.1.1.1/dns-query,https://9.9.9.9/dns-query"
+
+  unbound:
+    # This image supports both amd64 and arm64 natively
+    image: ${UNBOUND_IMAGE}
+    container_name: unbound
+    restart: unless-stopped
+    # If you're on your Mac and want to force it to try amd64 (slower via emulation)
+    # platform: linux/amd64
+    cap_add:
+      - NET_ADMIN
