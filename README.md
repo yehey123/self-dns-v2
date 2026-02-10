@@ -14,13 +14,19 @@ This project implements a DNS resolution layer designed to bypass ISP-level DNS 
 * **Automated Hardening:** Includes scripts to configure system-level firewalls, ensuring no DNS leaks occur outside the encrypted tunnel.
 
 ## 🚀 Usage
+### Starting the container
 * Copy `.env.example` to `.env`. Ensure that your configuration matches the machine you'll be deploying to.
 * Comment out `network_mode: "host"` on `docker-compose.yml::pihole` if deploying on a mac
 
 * Start the gateway
 
 ```bash
-docker-compose up -d
+./start.sh
 
 ```
-* Post-installation: **Use `127.0.0.1` as your `nameserver` in `/etc/resolv.conf.`**
+* Post-startup: **Use `127.0.0.1` as your `nameserver` in `/etc/resolv.conf.`**
+### Stopping the container
+
+```bash
+./stop.sh
+```
