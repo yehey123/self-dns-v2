@@ -22,7 +22,7 @@ services:
       - SYS_NICE
     restart: unless-stopped
     # Use host network to make loopback (#5053) communication easy
-    # network_mode: "host" # comment out if deploying on a mac 
+    network_mode: "host" # comment out if deploying on a mac 
     dns:
       - 1.1.1.1
       - 8.8.8.8
